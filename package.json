@@ -21,6 +21,14 @@
     "puppeteer-core": "^25.9.0"
   },
   "author": "Dennis de Best and contributors",
+  "homepage": "https://github.com/Infin8Gamer1/home-assistant-kanban-board",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Infin8Gamer1/home-assistant-kanban-board.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Infin8Gamer1/home-assistant-kanban-board/issues"
+  },
   "keywords": [
     "home-assistant",
     "lovelace",

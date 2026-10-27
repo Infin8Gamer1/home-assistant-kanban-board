@@ -19,7 +19,7 @@ body:
     id: version
     attributes:
       label: Card version
-      description: HACS shows it, or look for `TODO-KANBAN-CARD` in the browser console.
+      description: HACS shows it, or look for `TODO-KANBAN-CARD-PLUS` in the browser console.
       placeholder: "1.2.0"
     validations:
       required: true

@@ -1,5 +1,5 @@
 blank_issues_enabled: true
 contact_links:
   - name: Question or a board worth showing off
-    url: https://github.com/DennisdeBest/HaTodoKanbanCard/discussions
+    url: https://github.com/Infin8Gamer1/home-assistant-kanban-board/issues
     about: Use Discussions for questions and for sharing what you have built.

@@ -1,7 +1,8 @@
 # Todo Kanban Card Plus
 
-[![HACS custom](https://img.shields.io/badge/HACS-custom-41BDF5.svg)](https://hacs.xyz)
-[![Licence](https://img.shields.io/github/license/DennisdeBest/HaTodoKanbanCard)](LICENSE)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Infin8Gamer1&repository=home-assistant-kanban-board&category=plugin)
+[![HACS custom](https://img.shields.io/badge/HACS-custom-41BDF5.svg)](https://github.com/Infin8Gamer1/home-assistant-kanban-board)
+[![Licence](https://img.shields.io/github/license/Infin8Gamer1/home-assistant-kanban-board)](LICENSE)
 
 Fork of [Todo Kanban Card](https://github.com/DennisdeBest/HaTodoKanbanCard) **v1.3.0**
 by **Dennis de Best**, MIT. The original licence is kept in [LICENSE](LICENSE). This
@@ -18,12 +19,12 @@ card has no control for it. So an item that landed on the wrong list stays there
 gets deleted and retyped. This card fixes that, and arranges any number of lists as
 lanes while it is at it.
 
-![The shopping board](https://raw.githubusercontent.com/DennisdeBest/HaTodoKanbanCard/master/docs/shopping.png)
+![The shopping board](docs/shopping.png)
 
 **Moving an item between lists is the whole point.** Drag by the handle on the right of
 a row — to another position, or to another lane:
 
-![Dragging an item from one list to another](https://raw.githubusercontent.com/DennisdeBest/HaTodoKanbanCard/master/docs/drag.gif)
+![Dragging an item from one list to another](docs/drag.gif)
 
 ## What it does
 
@@ -67,15 +68,17 @@ support adding. Local To-do supports everything.
 
 ### HACS (custom repository)
 
-Once this repo is on GitHub, add it as a custom repository. Do not use the upstream
-Todo Kanban Card repo if you want this fork — that installs the original element.
+Add [this repository](https://github.com/Infin8Gamer1/home-assistant-kanban-board)
+as a custom repository. Do not use the upstream Todo Kanban Card repo if you want
+this fork — that installs the original element.
 
-1. HACS → three dots, top right → **Custom repositories**
-2. Paste this repository's GitHub URL, category **Dashboard**
+1. Use the **Open HACS repository** button above, or in HACS open the three dots, top right → **Custom repositories**
+2. Repository: `https://github.com/Infin8Gamer1/home-assistant-kanban-board`, category **Dashboard**
 3. Install **Todo Kanban Card Plus**, then reload the page.
 
-HACS downloads the single file named in `hacs.json` (`todo-kanban-card-plus.js`).
-That built file is committed. The card requires Home Assistant **2026.5** or newer.
+HACS downloads the single file named in `hacs.json` (`todo-kanban-card-plus.js`),
+which is committed at the repository root (not under `dist/`). The card requires
+Home Assistant **2026.5** or newer. Releases are tagged; install **v1.0.0** or newer.
 In the dashboard the card type is:
 
 ```yaml
@@ -100,7 +103,7 @@ Bump the `?v=` whenever you replace the file, or browsers will keep the old copy
 lists, what each is called, an icon and a colour for each, and the card-wide options.
 Lists can be reordered and removed there too — no YAML needed.
 
-![The visual editor](https://raw.githubusercontent.com/DennisdeBest/HaTodoKanbanCard/master/docs/editor-visual.png)
+![The visual editor](docs/editor-visual.png)
 
 The pickers are Home Assistant's own, so the entity list is filtered to your `todo`
 entities, the icon field previews as you type, and the colours are the theme palette.
@@ -180,7 +183,7 @@ editor first — what is there is for overriding what it picked.
 The editor lists **every tag in play**, including ones you have only ever typed into an
 item, each marked *auto* until you choose a colour for it.
 
-![Completing a tag while typing](https://raw.githubusercontent.com/DennisdeBest/HaTodoKanbanCard/master/docs/tags.png)
+![Completing a tag while typing](docs/tags.png)
 
 **You do not have to type them in full, either.** Start typing `#dai` and the box
 suggests matching tags — click one, or press <kbd>Tab</kbd> for the first, and the word
@@ -223,12 +226,12 @@ worked examples are in [`examples/`](examples/):
 
 A project board — lanes pinned open, and nothing typed straight into Done:
 
-![Backlog, Doing and Done](https://raw.githubusercontent.com/DennisdeBest/HaTodoKanbanCard/master/docs/project-board.png)
+![Backlog, Doing and Done](docs/project-board.png)
 
 Chores by room — completed items hidden, and `min_lane_width` turned down so five lanes
 fit across:
 
-![One lane per room](https://raw.githubusercontent.com/DennisdeBest/HaTodoKanbanCard/master/docs/chores.png)
+![One lane per room](docs/chores.png)
 
 ### On a phone, and in the dark
 
@@ -236,8 +239,8 @@ Lanes are laid out with `auto-fit`, so they use as many columns as will fit and 
 into one when they will not. Nothing to configure, and no separate mobile layout:
 
 <p>
-  <img src="https://raw.githubusercontent.com/DennisdeBest/HaTodoKanbanCard/master/docs/mobile.png" alt="The same board stacked on a phone" width="290">
-  <img src="https://raw.githubusercontent.com/DennisdeBest/HaTodoKanbanCard/master/docs/shopping-dark.png" alt="The board in a dark theme" width="560">
+  <img src="docs/mobile.png" alt="The same board stacked on a phone" width="290">
+  <img src="docs/shopping-dark.png" alt="The board in a dark theme" width="560">
 </p>
 
 Every colour is a Home Assistant CSS variable, so the card follows whatever theme is
@@ -383,8 +386,8 @@ looking fine.
 
 ## Found a problem?
 
-**Please open an issue** — [bug report](https://github.com/DennisdeBest/HaTodoKanbanCard/issues/new?template=bug_report.yml)
-or [an idea](https://github.com/DennisdeBest/HaTodoKanbanCard/issues/new?template=feature_request.yml).
+**Please open an issue** — [bug report](https://github.com/Infin8Gamer1/home-assistant-kanban-board/issues/new?template=bug_report.yml)
+or [an idea](https://github.com/Infin8Gamer1/home-assistant-kanban-board/issues/new?template=feature_request.yml).
 The card version, your card YAML and whether it happened on a phone or a desktop are the
 three things that make a report quickly actionable; dragging and the keyboard behave
 differently on each.
