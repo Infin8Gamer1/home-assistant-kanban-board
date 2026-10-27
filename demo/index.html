@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>todo-kanban-card-plus — demo</title>
+<style>
+  :root {
+    color-scheme: light;
+    --primary-color: #03a9f4;
+    --accent-color: #ff9800;
+    --error-color: #db4437;
+    --warning-color: #ffa600;
+    --success-color: #43a047;
+    --primary-text-color: #212121;
+    --secondary-text-color: #727272;
+    --text-primary-color: #ffffff;
+    --divider-color: rgba(0,0,0,.12);
+    --card-background-color: #fff;
+    --secondary-background-color: #e5e5e5;
+    --ha-card-border-radius: 12px;
+    --ha-card-box-shadow: 0 2px 6px rgba(0,0,0,.16);
+    --rgb-error-color: 219,68,55;
+    --mdc-icon-size: 24px;
+    --page-background: #f2f4f7;
+
+    /* Home Assistant's colour palette, verbatim, so `color: red` on a lane and the tag
+       chips look here exactly as they do in a dashboard. Without these the card asks
+       for var(--orange-color), gets nothing, and falls back to grey. */
+    --red-color: #f44336;        --pink-color: #e91e63;
+    --purple-color: #926bc7;     --deep-purple-color: #6e41ab;
+    --indigo-color: #3f51b5;     --blue-color: #2196f3;
+    --light-blue-color: #03a9f4; --cyan-color: #00bcd4;
+    --teal-color: #009688;       --green-color: #4caf50;
+    --light-green-color: #8bc34a;--lime-color: #cddc39;
+    --yellow-color: #ffeb3b;     --amber-color: #ffc107;
+    --orange-color: #ff9800;     --deep-orange-color: #ff6f22;
+    --brown-color: #795548;      --light-grey-color: #bdbdbd;
+    --grey-color: #9e9e9e;       --dark-grey-color: #606060;
+    --blue-grey-color: #607d8b;  --black-color: #000000;
+    --white-color: #ffffff;
+  }
+  html[data-theme="dark"] {
+    color-scheme: dark;
+    --primary-color: #2196f3;
+    --primary-text-color: #e1e1e1;
+    --secondary-text-color: #9b9b9b;
+    --divider-color: rgba(255,255,255,.12);
+    --card-background-color: #1c1c1c;
+    --secondary-background-color: #282828;
+    --page-background: #111213;
+  }
+  body {
+    margin: 0; padding: 24px 16px 64px;
+    background: var(--page-background); color: var(--primary-text-color);
+    font-family: Roboto, -apple-system, "Segoe UI", sans-serif;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+  header.page { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  header.page h1 { font-size: 22px; margin: 0; font-weight: 600; }
+  header.page p { margin: 0; color: var(--secondary-text-color); font-size: 14px; flex: 1 1 100%; }
+  button.tool {
+    padding: 7px 14px; border-radius: 18px; border: 1px solid var(--divider-color);
+    background: var(--card-background-color); color: var(--primary-text-color);
+    font: inherit; font-size: 13px; cursor: pointer;
+  }
+  section.example > h2 { font-size: 15px; font-weight: 600; margin: 0 0 4px; }
+  section.example > p { margin: 0 0 10px; color: var(--secondary-text-color); font-size: 13px; }
+  body.bare { padding: 16px; background: var(--page-background); }
+  body.bare header.page { display: none; }
+  body.bare .wrap { gap: 0; }
+  .cfg {
+    margin-top: 10px; padding: 10px 12px; border-radius: 10px; overflow-x: auto;
+    background: var(--card-background-color); border: 1px solid var(--divider-color);
+    font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.5;
+    color: var(--secondary-text-color); white-space: pre;
+  }
+  /* Stand-ins for the two Home Assistant elements the card borrows. */
+  ha-card {
+    display: block; border-radius: var(--ha-card-border-radius);
+    background: var(--card-background-color); box-shadow: var(--ha-card-box-shadow);
+  }
+  ha-icon { display: inline-flex; align-items: center; justify-content: center;
+            width: var(--mdc-icon-size, 24px); height: var(--mdc-icon-size, 24px);
+            flex: none; }
+  ha-icon svg { width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page">
+    <h1>todo-kanban-card-plus</h1>
+    <button class="tool" id="theme">Dark</button>
+    <button class="tool" id="reset">Reset the data</button>
+    <p>
+      A live board running against an in-memory stand-in for Home Assistant — no HA, no
+      network. Drag by the grip on the right of a row to reorder or to move an item to
+      another lane, click a row to open it, click a lane header to fold it.
+      This is where to check a change before it goes anywhere near the real thing.
+    </p>
+  </header>
+  <div id="examples"></div>
+</div>
+
+<script type="module">
+import { createMockHass } from "./mock-hass.js";
+import { ICON_PATHS } from "./icons.js";
+import "../todo-kanban-card-plus.js";
+
+// A stand-in for Home Assistant's `<ha-icon>`, drawing the same Material Design Icons
+// it would. The card never imports these — in a dashboard the real element resolves
+// them — so this exists purely so the demo, and the screenshots taken from it, look
+// like the real thing. Paths come from demo/icons.js (`npm run icons`).
+const SVG_NS = "http://www.w3.org/2000/svg";
+customElements.define("ha-icon", class extends HTMLElement {
+  static get observedAttributes() { return ["icon"]; }
+  attributeChangedCallback() {
+    const d = ICON_PATHS[this.getAttribute("icon")];
+    this.replaceChildren();
+    // Inline styles, not a stylesheet: these elements live inside the card's shadow
+    // root, which the demo page's CSS cannot reach. Without this the icons render at
+    // zero size and the board looks like it has none at all.
+    this.style.cssText =
+      "display:inline-flex;align-items:center;justify-content:center;flex:none;" +
+      "width:var(--mdc-icon-size,24px);height:var(--mdc-icon-size,24px);";
+    if (!d) return;
+    const svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("aria-hidden", "true");
+    svg.style.cssText = "width:100%;height:100%;display:block;";
+    const path = document.createElementNS(SVG_NS, "path");
+    path.setAttribute("d", d);
+    path.setAttribute("fill", "currentColor");
+    svg.appendChild(path);
+    this.appendChild(svg);
+  }
+});
+
+const today = new Date();
+const day = (offset) => new Date(today.getTime() + offset * 86400000).toISOString().slice(0, 10);
+
+const EXAMPLES = [
+  {
+    id: "shopping",
+    heading: "Shopping, split by urgency",
+    blurb: "The board this card was written for. Something you need today, the normal run, and things to pick up eventually. Tags are written straight into the item text.",
+    lists: {
+      "todo.shopping_urgent": [
+        { summary: "Bin bags #household" },
+        { summary: "Cat litter #pets", due: day(0) },
+      ],
+      "todo.shopping": [
+        { summary: "Lemon juice #fresh" },
+        { summary: "Smoked paprika #spices" },
+        { summary: "Black peppercorns #spices", due: day(3), description: [
+          "## For the grinder",
+          "",
+          "Coarse, not powder. The little jar by the hob is **empty**.",
+          "",
+          "- **Tellicherry** if they have it",
+          "- Otherwise any black pepper in a mill",
+          "",
+          "| Shop | Notes |",
+          "| --- | --- |",
+          "| Market | usually the freshest |",
+          "| Supermarket | check the grind setting |",
+          "",
+          "The recipe folder is [on the shelf](https://example.com/pepper).",
+        ].join("\n") },
+        { summary: "Cling film", status: "completed" },
+      ],
+      "todo.shopping_long_haul": [{ summary: "New frying pan #kitchen", due: day(24) }],
+    },
+    config: {
+      type: "custom:todo-kanban-card-plus",
+      title: "Shopping",
+      enable_tags: true,
+      tags: { spices: "orange", fresh: "green", pets: "purple", household: "blue-grey" },
+      lanes: [
+        { entity: "todo.shopping_urgent", title: "Urgent", icon: "mdi:alert-octagon", color: "var(--error-color)" },
+        { entity: "todo.shopping", title: "Normal", icon: "mdi:cart", color: "var(--primary-color)" },
+        { entity: "todo.shopping_long_haul", title: "Long haul", icon: "mdi:calendar-clock", color: "#9c27b0" },
+      ],
+    },
+  },
+  {
+    id: "board",
+    heading: "A project board",
+    blurb: "Backlog / Doing / Done, the classic. Dragging right is the whole interaction, and Done keeps its completed items out of the way.",
+    lists: {
+      "todo.backlog": [
+        { summary: "Insulate the loft hatch" }, { summary: "Bleed the radiators" },
+        { summary: "Replace the bathroom extractor" },
+      ],
+      "todo.doing": [{ summary: "Rewire the hallway light", due: day(2), description: [
+        "## Hallway light",
+        "",
+        "The switch is in the **cupboard** under the stairs.",
+        "",
+        "- Turn the breaker off first",
+        "- Match the old colours before disconnecting",
+        "",
+        "Leave the rose cover off until it has been tested.",
+      ].join("\n") }],
+      "todo.done": [{ summary: "Fix the garden tap", status: "completed" }, { summary: "Seal the shed roof" }],
+    },
+    config: {
+      type: "custom:todo-kanban-card-plus",
+      title: "House projects",
+      default_collapsed: false,
+      lanes: [
+        { entity: "todo.backlog", title: "Backlog", icon: "mdi:tray-full", color: "var(--secondary-text-color)" },
+        { entity: "todo.doing", title: "Doing", icon: "mdi:progress-wrench", color: "var(--warning-color)" },
+        { entity: "todo.done", title: "Done", icon: "mdi:check-decagram", color: "var(--success-color)", hide_add: true },
+      ],
+    },
+  },
+  {
+    id: "chores",
+    heading: "Chores by room",
+    blurb: "Completed items hidden, because a chore list is about what is left. Narrower lanes, so more of them fit across.",
+    lists: {
+      "todo.kitchen": [{ summary: "Descale the kettle" }, { summary: "Clean the oven", due: day(5) }],
+      "todo.bathroom": [{ summary: "Scrub the shower screen" }],
+      "todo.living_room": [{ summary: "Wash the throws" }, { summary: "Dust the shelves", status: "completed" }],
+      "todo.outside": [],
+    },
+    config: {
+      type: "custom:todo-kanban-card-plus",
+      title: "Chores",
+      hide_completed: true,
+      min_lane_width: 200,
+      lanes: [
+        { entity: "todo.kitchen", title: "Kitchen", icon: "mdi:silverware-fork-knife" },
+        { entity: "todo.bathroom", title: "Bathroom", icon: "mdi:broom" },
+        { entity: "todo.living_room", title: "Living room", icon: "mdi:broom" },
+        { entity: "todo.outside", title: "Outside", icon: "mdi:hammer-wrench" },
+      ],
+    },
+  },
+];
+
+function yaml(value, indent = 0) {
+  const pad = "  ".repeat(indent);
+  if (Array.isArray(value)) {
+    return value.map((v) => {
+      const body = yaml(v, indent + 1).replace(/^\s+/, "");
+      return `${pad}- ${body}`;
+    }).join("\n");
+  }
+  if (value && typeof value === "object") {
+    return Object.entries(value).map(([k, v], i) => {
+      const prefix = i === 0 && indent > 0 ? "" : pad;
+      if (v && typeof v === "object") return `${prefix}${k}:\n${yaml(v, indent + 1)}`;
+      return `${prefix}${k}: ${v}`;
+    }).join("\n");
+  }
+  return `${pad}${value}`;
+}
+
+/*
+ * Query parameters, used by scripts/shots.mjs to capture the README images:
+ *   ?only=<id>   render just that example
+ *   ?bare        drop the page header and the YAML block, leaving the card alone
+ *   ?theme=dark  force the dark palette
+ * Without them the page is the normal three-board playground.
+ */
+const PARAMS = new URLSearchParams(location.search);
+const ONLY = PARAMS.get("only");
+const BARE = PARAMS.has("bare");
+if (PARAMS.get("theme") === "dark") document.documentElement.setAttribute("data-theme", "dark");
+if (BARE) document.body.classList.add("bare");
+
+function build() {
+  const host = document.getElementById("examples");
+  host.replaceChildren();
+  for (const example of EXAMPLES.filter((e) => !ONLY || e.id === ONLY)) {
+    const { hass } = createMockHass(example.lists);
+    const section = document.createElement("section");
+    section.className = "example";
+    if (!BARE) section.innerHTML = `<h2>${example.heading}</h2><p>${example.blurb}</p>`;
+    const card = document.createElement("todo-kanban-card-plus");
+    const { type, ...cfg } = example.config;
+    card.setConfig(cfg);
+    card.hass = hass;
+    section.appendChild(card);
+    if (!BARE) {
+      const cfgBlock = document.createElement("div");
+      cfgBlock.className = "cfg";
+      cfgBlock.textContent = yaml(example.config);
+      section.appendChild(cfgBlock);
+    }
+    host.appendChild(section);
+  }
+}
+
+document.getElementById("theme").addEventListener("click", (ev) => {
+  const dark = document.documentElement.getAttribute("data-theme") === "dark";
+  document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+  ev.target.textContent = dark ? "Dark" : "Light";
+});
+document.getElementById("reset").addEventListener("click", () => {
+  for (const key of Object.keys(localStorage)) {
+    if (key.startsWith("todo-kanban.")) localStorage.removeItem(key);
+  }
+  build();
+});
+
+build();
+
+// ?detail opens the first item that has a description, once the mock has pushed it.
+// ?detail=edit goes straight to the description field.
+if (PARAMS.has("detail")) {
+  setTimeout(() => {
+    const card = document.querySelector("todo-kanban-card-plus");
+    const row = card && card.shadowRoot.querySelector(".desc-preview")?.closest(".item");
+    if (!row) return;
+    row.querySelector(".label").click();
+    if (PARAMS.get("detail") === "edit") card.shadowRoot.querySelector("[data-action=edit]")?.click();
+  }, 60);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "name": "todo-kanban-card-plus",
+  "version": "1.4.0",
+  "description": "A kanban board over Home Assistant todo lists. Fork of Dennis de Best's Todo Kanban Card with a markdown detail view.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test --experimental-test-isolation=process test/*.test.mjs",
+    "demo": "node demo/serve.mjs",
+    "shots": "node scripts/shots.mjs",
+    "icons": "node scripts/gen-icons.mjs",
+    "shots:editor": "node scripts/shot-editor.mjs",
+    "build": "node scripts/build.mjs",
+    "pretest": "node scripts/build.mjs"
+  },
+  "devDependencies": {
+    "@mdi/js": "^7.4.47",
+    "esbuild": "^0.28.2",
+    "jsdom": "^30.0.0",
+    "puppeteer-core": "^25.9.0"
+  },
+  "author": "Dennis de Best and contributors",
+  "keywords": [
+    "home-assistant",
+    "lovelace",
+    "lovelace-card",
+    "hacs",
+    "kanban",
+    "todo"
+  ],
+  "dependencies": {
+    "puppeteer-core": "^25.9.0"
+  }
+}

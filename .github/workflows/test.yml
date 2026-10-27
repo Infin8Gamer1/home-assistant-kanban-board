@@ -1,0 +1,22 @@
+name: test
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: The committed bundle must match the source
+        run: npm run build -- --check
+      - name: The card must parse on its own
+        run: node --check todo-kanban-card-plus.js
+      - run: npm test

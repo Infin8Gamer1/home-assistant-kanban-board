@@ -1,0 +1,7 @@
+.idea
+node_modules/
+npm-debug.log*
+.DS_Store
+
+# Frame dump from `npm run shots`, deleted again once ffmpeg has the gif.
+.frames/
